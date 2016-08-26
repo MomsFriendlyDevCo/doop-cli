@@ -3,34 +3,31 @@
 var _ = require('lodash');
 var async = require('async-chainable');
 var colors = require('chalk');
-var copy = require('ncp');
 var doop = require('.');
 var fspath = require('path');
 var glob = require('glob');
 var program = require('commander');
+var rimraf = require('rimraf');
 
 program
 	.version(require('./package.json').version)
 	.usage('[unit...]')
-	.description('Install one or more units from the upstream Doop repo')
+	.description('Delete an exising unit from the project')
 	.option('-s, --server', 'Specify explicitally that a unit refers to a server side unit (cannot be used with `--client`)')
 	.option('-c, --client', 'Limit list to only client units (Specify explicitally that a unit refers to a client side unit (cannot be used with `--server`))')
 	.option('-d, --dryrun', 'Dry run. Don\'t actually do anything')
 	.option('-v, --verbose', 'Be verbose. Specify multiple times for increasing verbosity', function(i, v) { return v + 1 }, 0)
-	.option('-r, --repo [repo]', 'Override the upstream Doop repo to use')
 	.parse(process.argv);
 
 async()
 	// Sanity checks {{{
 	.then(function(next) {
-		if (!program.server && !program.client) return next('Must specifiy either --client or --server');
-		if (program.server && program.client) return next('Only --client OR --server can be specified. Not both');
 		if (!program.args.length) return next('At least one unit must be specified');
 		next();
 	})
 	// }}}
 	.then(doop.chProjectRoot)
-	// Prepare the units we would install {{{
+	// Prepare the units we would delete {{{
 	.set('units', [])
 	.forEach(program.args, function(next, arg) {
 		var unit = {id: arg};
@@ -44,33 +41,21 @@ async()
 		}, (program.server ? 'server' : program.client ? 'client' : null), program.args[0]);
 	})
 	// }}}
-	// Check the units don't already exist before we do anything {{{
+	// Check that the units actually exist {{{
 	.then(function(next) {
-		if (this.units.some(unit => unit.existing)) return next('Units already installed: ' + this.units.filter(unit => unit.existing).map(unit => colors.cyan(unit.id)).join(', '));
+		if (this.units.some(unit => !unit.existing)) return next('Units do not exist: ' + this.units.filter(unit => !unit.existing).map(unit => colors.cyan(unit.id)).join(', '));
 		next();
 	})
 	// }}}
-	// Get repo {{{
-	.then('repo', function(next) {
-		doop.getDoopPath(next, program.repo);
-	})
-	.then(function(next) {
-		if (program.verbose) console.log('Using Doop source:', colors.cyan(this.repo));
-		next();
-	})
-	// }}}
-	// Install the units {{{
+	// Remove the units {{{
 	.forEach('units', function(next, unit) {
-		var source = fspath.join(this.repo, doop.settings.paths[program.client ? 'client' : 'server'], unit.id);
-		var dest = fspath.join(doop.settings.paths[program.client ? 'client' : 'server'], unit.id);
+		var path = fspath.join(doop.settings.paths[program.client ? 'client' : 'server'], unit.id);
 		if (program.dryrun) {
-			console.log('Would install', colors.cyan(unit.id), 'From', colors.cyan(source), '=>', colors.cyan(dest));
+			console.log('Would delete', colors.cyan(unit.id), 'From', colors.cyan(path));
 			return next();
 		}
 
-		console.log('Install', colors.cyan(unit.id));
-		if (program.verbose) console.log(colors.cyan(source), '=>', colors.cyan(dest));
-		copy(source, dest, {stopOnError: true, dereference: true}, next);
+		rimraf(path, next);
 	})
 	// }}}
 	// End {{{
@@ -79,7 +64,7 @@ async()
 			console.log(colors.red('Doop Error'), err.toString());
 			process.exit(1);
 		} else {
-			if (!program.dryrun) console.log(colors.cyan(this.units.length), (this.units.length == 1 ? 'unit' : 'units') + ' installed');
+			if (!program.dryrun) console.log(colors.cyan(this.units.length), (this.units.length == 1 ? 'unit' : 'units') + ' deleted');
 			process.exit(0);
 		}
 	});

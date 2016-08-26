@@ -52,13 +52,7 @@ async()
 	// }}}
 	// Get repo {{{
 	.then('repo', function(next) {
-		var doopSource = _.trimEnd(program.repo || doop.settings.paths.doop, '/') + '/';
-		glob(doopSource, function(err, dirs) {
-			if (err) return next(err);
-			if (!dirs.length) return next('Doop directory not found: "' + doopSource + '"');
-			if (dirs.length > 1) return next('Multiple Doop sources found for "' + doopSource + '"');
-			next(null, dirs[0]);
-		});
+		doop.getDoopPath(next, program.repo);
 	})
 	.then(function(next) {
 		if (program.verbose) console.log('Using Doop source:', colors.cyan(this.repo));

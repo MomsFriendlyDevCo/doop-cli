@@ -66,6 +66,22 @@ doop.chProjectRoot = function(finish, strict) {
 
 
 /**
+* Get the absolute Doop directory path and ensure that it exists
+* @param {function} finish Callback function
+* @param {string} [altPath] Alternative path to check (overrides `doop.settings.paths.doop`)
+*/
+doop.getDoopPath = function(finish, altPath) {
+	var doopSource = _.trimEnd(altPath || doop.settings.paths.doop, '/') + '/';
+	glob(doopSource, function(err, dirs) {
+		if (err) return finish(err);
+		if (!dirs.length) return finish('Doop directory not found: "' + doopSource + '"');
+		if (dirs.length > 1) return finish('Multiple Doop sources found for "' + doopSource + '"');
+		finish(null, dirs[0]);
+	});
+};
+
+
+/**
 * Get all installed units as an array of strings
 * @param {function} finish Callback function
 * @param {string} type The type of unit to retrieve. Must correspond with a key in `doop.settings.globs.units`
@@ -95,6 +111,6 @@ doop.getUnit = function(finish, type, name) {
 			finish(null, path);
 		});
 	} else {
-		finsih('Auto unit finding is currently unsupported');
+		finish('Auto unit finding is currently unsupported');
 	}
 };

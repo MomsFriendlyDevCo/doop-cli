@@ -15,6 +15,7 @@ program
 
 async()
 	.then(doop.chProjectRoot)
+	// Get the list of units {{{
 	.parallel({
 		client: function(next) {
 			if (program.server) return next();
@@ -25,6 +26,8 @@ async()
 			doop.getUnits(next, 'server');
 		},
 	})
+	// }}}
+	// Present the list {{{
 	.then(function(next) {
 		[
 			!program.server ? 'client' : null,
@@ -37,6 +40,8 @@ async()
 			});
 		next();
 	})
+	// }}}
+	// End {{{
 	.end(function(err) {
 		if (err) {
 			console.log(colors.red('Doop Error'), err.toString());
@@ -45,3 +50,4 @@ async()
 			process.exit(0);
 		}
 	});
+	// }}}

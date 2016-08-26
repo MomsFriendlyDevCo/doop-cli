@@ -2,8 +2,9 @@ var _ = require('lodash');
 var async = require('async-chainable');
 var fspath = require('path');
 var glob = require('glob');
-var doop;
-module.exports = doop = {};
+var doop = {}; // Gets populated as the module is processed
+
+module.exports = doop;
 
 doop.settings = {
 	globs: {
@@ -14,6 +15,7 @@ doop.settings = {
 		},
 	},
 	paths: {
+		doop: '/media/LinuxSSD/Projects/Doop',
 		client: './client/units',
 		server: './server/units',
 	},
@@ -66,11 +68,33 @@ doop.chProjectRoot = function(finish, strict) {
 /**
 * Get all installed units as an array of strings
 * @param {function} finish Callback function
-* @param {string} The type of unit to retrieve. Must correspond with a key in `doop.settings.globs.units`
+* @param {string} type The type of unit to retrieve. Must correspond with a key in `doop.settings.globs.units`
 */
 doop.getUnits = function(finish, type) {
 	glob(doop.settings.globs.units[type], function(err, paths) {
 		if (err) return finish(err);
 		finish(null, paths.map(path => fspath.basename(path)));
 	});
+};
+
+
+/**
+* Find the relative path for an installed unit
+* If multiple units are found (usually when type=null) an error is raised
+* If either NONE or ONE unit is found the callback is called
+* @param {function} finish Callback function
+* @param {string|null} type Optional type of unit to retrieve. If specified, must correspond with a key in `doop.settings.globs.units`, if unspecified all types will be searched
+* @param {string} name The name of the unit to find. Globs can be used
+*/
+doop.getUnit = function(finish, type, name) {
+	if (type) {
+		glob(fspath.join(doop.settings.paths[type], name), function(err, path) {
+			if (err) return finish(err);
+			if (!path.length) return finish();
+			if (path.length > 1) return finish('Multiple units matching "' + path + '"');
+			finish(null, path);
+		});
+	} else {
+		finsih('Auto unit finding is currently unsupported');
+	}
 };

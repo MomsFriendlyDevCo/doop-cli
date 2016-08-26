@@ -7,11 +7,16 @@
     "doop": "./doop.js"
   },
   "keywords": [
+    "mfdc",
     "doop",
     "cli"
   ],
   "author": "Matt Carter <m@ttcarter.com> (https://github.com/hash-bang)",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MomsFriendlyDevCo/doop-cli/issues"
+  },
+  "homepage": "https://github.com/MomsFriendlyDevCo/doop-cli#readme",
   "dependencies": {
     "async-chainable": "^1.8.1",
     "chalk": "^1.1.3",

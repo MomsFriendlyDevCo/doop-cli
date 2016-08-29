@@ -10,4 +10,5 @@ program
 	.command('merge [unit]', 'Attempt to merge a unit with the upstream Doop repo')
 	.command('delete [unit]', 'Delete an exising unit from the project')
 	.command('config', 'List Doop config')
+	.command('setup', 'Configure Doop-Cli')
 	.parse(process.argv);

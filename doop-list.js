@@ -15,6 +15,7 @@ program
 
 async()
 	.then(doop.chProjectRoot)
+	.then(doop.getUserSettings)
 	// Get the list of units {{{
 	.parallel({
 		client: function(next) {

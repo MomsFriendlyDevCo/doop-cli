@@ -13,6 +13,8 @@ program
 
 async()
 	.then(doop.chProjectRoot)
+	.then(doop.getUserSettings)
+	// Walk over all config values and output a tree {{{
 	.then(function(next) {
 		var configWalker = function(branch, level) {
 			_.forEach(branch, function(val, key) {
@@ -32,6 +34,7 @@ async()
 		configWalker(doop.settings, 0);
 		next();
 	})
+	// }}}
 	// End {{{
 	.end(function(err) {
 		if (err) {

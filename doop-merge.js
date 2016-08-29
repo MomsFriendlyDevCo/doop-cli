@@ -22,6 +22,7 @@ program
 
 async()
 	.then(doop.chProjectRoot)
+	.then(doop.getUserSettings)
 	// Get repo {{{
 	.then('repo', function(next) {
 		doop.getDoopPath(next, program.repo);

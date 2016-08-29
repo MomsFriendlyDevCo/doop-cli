@@ -30,6 +30,7 @@ async()
 	})
 	// }}}
 	.then(doop.chProjectRoot)
+	.then(doop.getUserSettings)
 	// Prepare the units we would install {{{
 	.set('units', [])
 	.forEach(program.args, function(next, arg) {

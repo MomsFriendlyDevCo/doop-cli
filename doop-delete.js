@@ -27,6 +27,7 @@ async()
 	})
 	// }}}
 	.then(doop.chProjectRoot)
+	.then(doop.getUserSettings)
 	// Prepare the units we would delete {{{
 	.set('units', [])
 	.forEach(program.args, function(next, arg) {

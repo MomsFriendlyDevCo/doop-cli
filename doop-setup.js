@@ -48,6 +48,7 @@ async()
 				name: 'doopPath',
 				type: 'input',
 				message: 'Where is the Doop directory located on disk?',
+				default: _.get(this.existingSettings, 'paths.doop'),
 				validate: doopPath => new Promise(function(resolve, reject) {
 					if (!doopPath) return resolve(true);
 					doop.isDoopProject(function(err) {

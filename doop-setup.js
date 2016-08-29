@@ -13,6 +13,7 @@ var program = require('commander');
 program
 	.version(require('./package.json').version)
 	.description('Configure Doop-Cli')
+	.option('-d, --dryrun', 'Dry run. Don\'t actually save the config, just print what would be saved')
 	.option('-v, --verbose', 'Be verbose. Specify multiple times for increasing verbosity', function(i, v) { return v + 1 }, 0)
 	.parse(process.argv);
 
@@ -67,12 +68,21 @@ async()
 	// }}}
 	// Save settings {{{
 	.then(function(next) {
-		doop.setUserSettings(next, {
+		var saveConfig = {
 			paths: {
 				doop: this.doopPath,
 			},
+			aliases: doop.settings.aliases,
 			tools: doop.settings.tools,
-		});
+		};
+
+		if (program.dryrun) {
+			console.log('Would save:');
+			console.log(JSON.stringify(saveConfig, null, '\t'));
+			next();
+		} else {
+			doop.setUserSettings(next, saveConfig);
+		}
 	})
 	// }}}
 	// End {{{

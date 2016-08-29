@@ -25,6 +25,12 @@ doop.settings = {
 		client: './client/units',
 		server: './server/units',
 	},
+	aliases: {
+		default: 'list',
+		ls: 'list',
+		i: 'install',
+		rm: 'delete',
+	},
 	tools: {
 		// Mustache templates for merge tools (NOTE: Use three brackets to avoid HTML escaping)
 		meld: 'meld {{{project.path}}} {{{doop.path}}}',

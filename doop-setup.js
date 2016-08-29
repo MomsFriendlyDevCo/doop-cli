@@ -92,6 +92,7 @@ async()
 			console.log(colors.red('Doop Error'), err.toString());
 			process.exit(1);
 		} else {
+			console.log();
 			console.log(colors.bold.green('All done!'));
 			console.log('You can now run `doop` to manage your project');
 			process.exit(0);

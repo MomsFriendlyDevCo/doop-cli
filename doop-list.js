@@ -65,9 +65,11 @@ async()
 			.forEach(_.concat(this.client, this.server), function(next, unit) {
 				async()
 					.parallel([
+						// Hash all project files {{{
 						function(next) {
 							glob(fspath.join(unit.path, '**'), {nodir: true}, function(err, files) {
-								if (_.isArray(files))
+								if (files.length) {
+									unit.existsInProject = true;
 									files.forEach(function(file) {
 										hashQueue.defer(file, function(next) {
 											if (program.verbose) console.log('Hash file (Proj)', colors.cyan(file));
@@ -78,12 +80,18 @@ async()
 											});
 										});
 									});
+								} else {
+									unit.existsInProject = false;
+								}
 								next();
 							});
 						},
+						// }}}
+						// Hash all Doop files {{{
 						function(next) {
 							glob(fspath.join(doop.settings.paths.doop, unit.path, '**'), {nodir: true}, function(err, files) {
-								if (_.isArray(files))
+								if (files.length) {
+									unit.existsInDoop = true;
 									files.forEach(function(rawFile) {
 										var croppedPath = rawFile.substr(doop.settings.paths.doop.length + 1);
 										var file = fspath.join(doop.settings.paths.doop, croppedPath);
@@ -97,9 +105,13 @@ async()
 											});
 										});
 									});
+								} else {
+									unit.existsInDoop = false;
+								}
 								next();
 							});
 						},
+						// }}}
 					])
 					.end(next)
 			})
@@ -114,6 +126,7 @@ async()
 	// }}}
 	// Present the list {{{
 	.then(function(next) {
+		var task = this;
 		if (program.verbose > 1) console.log();
 		[
 			!program.server ? 'client' : null,
@@ -126,22 +139,28 @@ async()
 					this[type].forEach(unit => console.log(' -', unit.id));
 				} else {
 					this[type].forEach(function(unit) {
-						var changes = [];
-						// Edited:
-						_.filter(unit.files, f => f.project && f.doop && f.project != f.doop)
-							.forEach(f => changes.push(colors.yellow.bold('~') + f.path.substr(unit.path.length+1)));
-						// Created:
-						_.filter(unit.files, f => f.project && !f.doop)
-							.forEach(f => changes.push(colors.green.bold('+') + f.path.substr(unit.path.length+1)));
-						// Deleted
-						_.filter(unit.files, f => f.doop && !f.project)
-							.forEach(f => changes.push(colors.red.bold('-') + f.path.substr(doop.settings.paths.doop.length+unit.path.length+2)));
+						if (unit.existsInProject && !unit.existsInDoop) {
+							console.log(colors.grey(' -', unit.id));
+						} else if (!unit.existsInProject && unit.existsInDoop) {
+							console.log(colors.red(' -', unit.id));
+						} else { // In both Doop + Project - examine file differences
+							var changes = [];
+							// Edited:
+							_.filter(unit.files, f => f.project && f.doop && f.project != f.doop)
+								.forEach(f => changes.push(colors.yellow.bold('~') + f.path.substr(unit.path.length+1)));
+							// Created:
+							_.filter(unit.files, f => f.project && !f.doop)
+								.forEach(f => changes.push(colors.green.bold('+') + f.path.substr(unit.path.length+1)));
+							// Deleted
+							_.filter(unit.files, f => f.doop && !f.project)
+								.forEach(f => changes.push(colors.red.bold('-') + f.path.substr(doop.settings.paths.doop.length+unit.path.length+2)));
 
 
-						if (changes.length) {
-							console.log(' -', unit.id, colors.blue('('), changes.join(', '), colors.blue(')'));
-						} else {
-							console.log(' -', unit.id);
+							if (changes.length) {
+								console.log(' -', unit.id, colors.blue('('), changes.join(', '), colors.blue(')'));
+							} else {
+								console.log(' -', unit.id);
+							}
 						}
 					});
 				}

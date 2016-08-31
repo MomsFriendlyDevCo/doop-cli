@@ -5,12 +5,14 @@ var async = require('async-chainable');
 var asyncExec = require('async-chainable-exec');
 var colors = require('chalk');
 var doop = require('.');
+var fspath = require('path');
 var glob = require('glob');
 var mustache = require('mustache');
 var program = require('commander');
 
 program
 	.version(require('./package.json').version)
+	.usage('[unit]')
 	.description('Attempt to merge a unit with the upstream Doop repo')
 	.option('-s, --server', 'Specify explicitally that a unit refers to a server side unit (cannot be used with `--client`)')
 	.option('-c, --client', 'Limit list to only client units (Specify explicitally that a unit refers to a client side unit (cannot be used with `--server`))')
@@ -23,6 +25,7 @@ program
 async()
 	.then(doop.chProjectRoot)
 	.then(doop.getUserSettings)
+	.set('unit', program.args[0] || undefined) // Optional unit to merge (if omitted all are used)
 	// Get repo {{{
 	.then('repo', function(next) {
 		doop.getDoopPath(next, program.repo);
@@ -37,10 +40,10 @@ async()
 		if (!doop.settings.tools[program.tool]) return next('Tool not found: "' + program.tool + '"');
 		var v = {
 			project: {
-				path: process.cwd(),
+				path: fspath.join(process.cwd(), this.unit || ''),
 			},
 			doop: {
-				path: this.repo,
+				path: fspath.join(this.repo, this.unit || ''),
 			},
 		};
 

@@ -35,6 +35,12 @@ doop.settings = {
 		// Mustache templates for merge tools (NOTE: Use three brackets to avoid HTML escaping)
 		meld: 'meld {{{project.path}}} {{{doop.path}}}',
 	},
+	list: {
+		changes: {
+			maxEdited: 3,
+			maxCreated: 3,
+		},
+	},
 };
 
 

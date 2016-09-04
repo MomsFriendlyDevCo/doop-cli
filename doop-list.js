@@ -147,16 +147,33 @@ async()
 							console.log(colors.red(' -', unit.id));
 						} else { // In both Doop + Project - examine file differences
 							var changes = [];
-							// Edited:
-							_.filter(unit.files, f => f.project && f.doop && f.project != f.doop)
-								.forEach(f => changes.push(colors.yellow.bold('~') + f.path.substr(unit.path.length+1)));
-							// Created:
-							_.filter(unit.files, f => f.project && !f.doop)
-								.forEach(f => changes.push(colors.green.bold('+') + f.path.substr(unit.path.length+1)));
-							// Deleted
-							_.filter(unit.files, f => f.doop && !f.project)
-								.forEach(f => changes.push(colors.red.bold('-') + f.path.substr(doop.settings.paths.doop.length+unit.path.length+2)));
 
+							// Edited {{{
+							var items = _.filter(unit.files, f => f.project && f.doop && f.project != f.doop);
+							if (_.get(doop.settings, 'list.changes.maxEdited') && items.length > doop.settings.list.changes.maxEdited) {
+								changes.push(colors.yellow.bold('~' + items.length + ' items'));
+							} else {
+								items.forEach(f => changes.push(colors.yellow.bold('~') + f.path.substr(unit.path.length+1)));
+							}
+							// }}}
+
+							// Created {{{
+							var items = _.filter(unit.files, f => f.project && !f.doop);
+							if (_.get(doop.settings, 'list.changes.maxCreated') && items.length > doop.settings.list.changes.maxCreated) {
+								changes.push(colors.green.bold('+' + items.length + ' items'));
+							} else {
+								items.forEach(f => changes.push(colors.green.bold('+') + f.path.substr(unit.path.length+1)));
+							}
+							// }}}
+
+							// Deleted {{{
+							var items = _.filter(unit.files, f => f.doop && !f.project);
+							if (_.get(doop.settings, 'list.changes.maxDeleted') && items.length > doop.settings.list.changes.maxDeleted) {
+								changes.push(colors.red.bold('-' + items.length + ' items'));
+							} else {
+								items.forEach(f => changes.push(colors.red.bold('-') + f.path.substr(doop.settings.paths.doop.length+unit.path.length+2)));
+							}
+							// }}}
 
 							if (changes.length) {
 								console.log(' -', unit.id, colors.blue('('), changes.join(', '), colors.blue(')'));

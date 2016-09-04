@@ -135,7 +135,8 @@ async()
 			!program.client ? 'server' : null,
 		]
 			.filter(i => !!i) // Filter out empty
-			.forEach(type => {
+			.forEach((type, typeIndex) => {
+				if (typeIndex > 0) console.log(); // Add newline space after first item output
 				console.log(colors.bold.blue(type));
 				if (program.basic) { // Dont bother to do any weird hash comparison operations
 					this[type].forEach(unit => console.log(' -', unit.id));

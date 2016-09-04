@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var async = require('async-chainable');
+var asyncFlush = require('async-chainable-flush');
 var colors = require('chalk');
 var doop = require('.');
 var glob = require('glob');
@@ -19,6 +20,7 @@ program
 
 
 async()
+	.use(asyncFlush)
 	// Retrieve existing settings + prompt to overwrite if they exist {{{
 	.then('existingSettings', function(next) {
 		doop.getUserSettings(function(err, config) {
@@ -87,6 +89,7 @@ async()
 	})
 	// }}}
 	// End {{{
+	.flush()
 	.end(function(err) {
 		if (err) {
 			console.log(colors.red('Doop Error'), err.toString());

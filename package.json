@@ -20,6 +20,7 @@
   "dependencies": {
     "async-chainable": "^1.8.1",
     "async-chainable-exec": "^1.3.0",
+    "async-chainable-flush": "^1.0.0",
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
     "glob": "^7.0.6",

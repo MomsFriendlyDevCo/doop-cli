@@ -8,6 +8,7 @@
 
 var _ = require('lodash');
 var async = require('async-chainable');
+var asyncFlush = require('async-chainable-flush');
 var colors = require('chalk');
 var doop = require('.');
 var fspath = require('path');
@@ -16,6 +17,7 @@ var glob = require('glob');
 var cmd = process.argv[2]; // Exclude node + filename
 
 async()
+	.use(asyncFlush)
 	.then(doop.getUserSettings)
 	// Get list of supported commands {{{
 	.then('commands', function(next) {
@@ -39,6 +41,7 @@ async()
 	})
 	// }}}
 	// End {{{
+	.flush()
 	.end(function(err) {
 		console.log(this.commands);
 		if (err && err == 'SKIP') { // Die quietly - usually because some other process is handling the end condition

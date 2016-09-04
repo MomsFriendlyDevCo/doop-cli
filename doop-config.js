@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var async = require('async-chainable');
+var asyncFlush = require('async-chainable-flush');
 var colors = require('chalk');
 var doop = require('.');
 var program = require('commander');
@@ -12,6 +13,7 @@ program
 	.parse(process.argv);
 
 async()
+	.use(asyncFlush)
 	.then(doop.chProjectRoot)
 	.then(doop.getUserSettings)
 	// Walk over all config values and output a tree {{{
@@ -36,6 +38,7 @@ async()
 	})
 	// }}}
 	// End {{{
+	.flush()
 	.end(function(err) {
 		if (err) {
 			console.log(colors.red('Doop Error'), err.toString());

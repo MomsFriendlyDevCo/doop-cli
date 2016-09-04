@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var async = require('async-chainable');
+var asyncFlush = require('async-chainable-flush');
 var colors = require('chalk');
 var copy = require('ncp');
 var doop = require('.');
@@ -21,6 +22,7 @@ program
 	.parse(process.argv);
 
 async()
+	.use(asyncFlush)
 	// Sanity checks {{{
 	.then(function(next) {
 		if (!program.server && !program.client) return next('Must specifiy either --client or --server');
@@ -75,6 +77,7 @@ async()
 	})
 	// }}}
 	// End {{{
+	.flush()
 	.end(function(err) {
 		if (err) {
 			console.log(colors.red('Doop Error'), err.toString());

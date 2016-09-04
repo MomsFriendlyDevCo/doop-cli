@@ -3,6 +3,7 @@
 var _ = require('lodash');
 var async = require('async-chainable');
 var asyncExec = require('async-chainable-exec');
+var asyncFlush = require('async-chainable-flush');
 var colors = require('chalk');
 var doop = require('.');
 var fspath = require('path');
@@ -23,6 +24,7 @@ program
 	.parse(process.argv);
 
 async()
+	.use(asyncFlush)
 	.then(doop.chProjectRoot)
 	.then(doop.getUserSettings)
 	.set('unit', program.args[0] || undefined) // Optional unit to merge (if omitted all are used)
@@ -61,6 +63,7 @@ async()
 	})
 	// }}}
 	// End {{{
+	.flush()
 	.end(function(err) {
 		if (err) {
 			console.log(colors.red('Doop Error'), err.toString());

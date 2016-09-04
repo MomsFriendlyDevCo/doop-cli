@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var async = require('async-chainable');
+var asyncFlush = require('async-chainable-flush');
 var colors = require('chalk');
 var doop = require('.');
 var glob = require('glob');
@@ -20,6 +21,7 @@ program
 	.parse(process.argv);
 
 async()
+	.use(asyncFlush)
 	.then(doop.chProjectRoot)
 	.then(doop.getUserSettings)
 	// Get the list of units {{{
@@ -169,6 +171,7 @@ async()
 	})
 	// }}}
 	// End {{{
+	.flush()
 	.end(function(err) {
 		if (err) {
 			console.log(colors.red('Doop Error'), err.toString());

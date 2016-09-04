@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var async = require('async-chainable');
+var asyncFlush = require('async-chainable-flush');
 var colors = require('chalk');
 var doop = require('.');
 var fspath = require('path');
@@ -20,6 +21,7 @@ program
 	.parse(process.argv);
 
 async()
+	.use(asyncFlush)
 	// Sanity checks {{{
 	.then(function(next) {
 		if (!program.args.length) return next('At least one unit must be specified');
@@ -60,6 +62,7 @@ async()
 	})
 	// }}}
 	// End {{{
+	.flush()
 	.end(function(err) {
 		if (err) {
 			console.log(colors.red('Doop Error'), err.toString());

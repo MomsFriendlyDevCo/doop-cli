@@ -19,6 +19,7 @@ doop.settings = {
 	},
 	paths: {
 		doop: '',
+		project: process.cwd(),
 		units: './units',
 	},
 	aliases: {
@@ -56,6 +57,7 @@ doop.chProjectRoot = function(finish, strict) {
 							process.chdir('..');
 							return checkDir();
 						} else {
+							doop.settings.paths.project = process.cwd();
 							return finish();
 						}
 					}, '.');

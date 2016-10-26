@@ -14,8 +14,6 @@ program
 	.version(require('./package.json').version)
 	.usage('[unit...]')
 	.description('Delete an exising unit from the project')
-	.option('-s, --server', 'Specify explicitally that a unit refers to a server side unit (cannot be used with `--client`)')
-	.option('-c, --client', 'Limit list to only client units (Specify explicitally that a unit refers to a client side unit (cannot be used with `--server`))')
 	.option('-d, --dryrun', 'Dry run. Don\'t actually do anything')
 	.option('-v, --verbose', 'Be verbose. Specify multiple times for increasing verbosity', function(i, v) { return v + 1 }, 0)
 	.parse(process.argv);
@@ -41,7 +39,7 @@ async()
 			if (err) return next(err);
 			if (found) unit.existing = found;
 			next();
-		}, (program.server ? 'server' : program.client ? 'client' : null), program.args[0]);
+		}, program.args[0]);
 	})
 	// }}}
 	// Check that the units actually exist {{{
@@ -52,7 +50,7 @@ async()
 	// }}}
 	// Remove the units {{{
 	.forEach('units', function(next, unit) {
-		var path = fspath.join(doop.settings.paths[program.client ? 'client' : 'server'], unit.id);
+		var path = fspath.join(doop.settings.paths.units, unit.id);
 		if (program.dryrun) {
 			console.log('Would delete', colors.cyan(unit.id), 'From', colors.cyan(path));
 			return next();

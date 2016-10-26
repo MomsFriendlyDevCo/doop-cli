@@ -15,8 +15,6 @@ program
 	.version(require('./package.json').version)
 	.description('List units installed for the current project')
 	.option('-b, --basic', 'Display a simple list, do not attempt to hash file differences')
-	.option('-s, --server', 'Limit list to only server units (cannot be used with `--client`)')
-	.option('-c, --client', 'Limit list to only client units (cannot be used with `--server`)')
 	.option('-v, --verbose', 'Be verbose. Specify multiple times for increasing verbosity', function(i, v) { return v + 1 }, 0)
 	.parse(process.argv);
 
@@ -25,21 +23,11 @@ async()
 	.then(doop.chProjectRoot)
 	.then(doop.getUserSettings)
 	// Get the list of units {{{
-	.parallel({
-		client: function(next) {
-			if (program.server) return next();
-			doop.getUnits(function(err, units) {
-				if (err) return next(err);
-				next(null, units.map(u => { return {id: u, path: fspath.join(doop.settings.paths.client, u), files:{}} }));
-			}, 'client');
-		},
-		server: function(next) {
-			if (program.server) return next();
-			doop.getUnits(function(err, units) {
-				if (err) return next(err);
-				next(null, units.map(u => { return {id: u, path: fspath.join(doop.settings.paths.server, u), files:{}} }));
-			}, 'server');
-		},
+	.then('units', function(next) {
+		doop.getUnits(function(err, units) {
+			if (err) return next(err);
+			next(null, units.map(u => { return {id: u, path: fspath.join(doop.settings.paths.units, u), files:{}} }));
+		});
 	})
 	// }}}
 	// Hash file comparisons unless program.basic {{{
@@ -64,7 +52,7 @@ async()
 		var hashQueue = async(); // Hash tasks to perform
 
 		async()
-			.forEach(_.concat(this.client, this.server), function(next, unit) {
+			.forEach(this.units, function(next, unit) {
 				async()
 					.parallel([
 						// Hash all project files {{{
@@ -130,61 +118,48 @@ async()
 	.then(function(next) {
 		var task = this;
 		if (program.verbose > 1) console.log();
-		[
-			!program.server ? 'client' : null,
-			!program.client ? 'server' : null,
-		]
-			.filter(i => !!i) // Filter out empty
-			.forEach((type, typeIndex) => {
-				if (typeIndex > 0) console.log(); // Add newline space after first item output
-				console.log(colors.bold.blue(type));
-				if (program.basic) { // Dont bother to do any weird hash comparison operations
-					this[type].forEach(unit => console.log(' -', unit.id));
+		this.units.forEach(function(unit) {
+			if (unit.existsInProject && !unit.existsInDoop) {
+				console.log(colors.grey(' -', unit.id));
+			} else if (!unit.existsInProject && unit.existsInDoop) {
+				console.log(colors.red(' -', unit.id));
+			} else { // In both Doop + Project - examine file differences
+				var changes = [];
+
+				// Edited {{{
+				var items = _.filter(unit.files, f => f.project && f.doop && f.project != f.doop);
+				if (_.get(doop.settings, 'list.changes.maxEdited') && items.length > doop.settings.list.changes.maxEdited) {
+					changes.push(colors.yellow.bold('~' + items.length + ' items'));
 				} else {
-					this[type].forEach(function(unit) {
-						if (unit.existsInProject && !unit.existsInDoop) {
-							console.log(colors.grey(' -', unit.id));
-						} else if (!unit.existsInProject && unit.existsInDoop) {
-							console.log(colors.red(' -', unit.id));
-						} else { // In both Doop + Project - examine file differences
-							var changes = [];
-
-							// Edited {{{
-							var items = _.filter(unit.files, f => f.project && f.doop && f.project != f.doop);
-							if (_.get(doop.settings, 'list.changes.maxEdited') && items.length > doop.settings.list.changes.maxEdited) {
-								changes.push(colors.yellow.bold('~' + items.length + ' items'));
-							} else {
-								items.forEach(f => changes.push(colors.yellow.bold('~') + f.path.substr(unit.path.length+1)));
-							}
-							// }}}
-
-							// Created {{{
-							var items = _.filter(unit.files, f => f.project && !f.doop);
-							if (_.get(doop.settings, 'list.changes.maxCreated') && items.length > doop.settings.list.changes.maxCreated) {
-								changes.push(colors.green.bold('+' + items.length + ' items'));
-							} else {
-								items.forEach(f => changes.push(colors.green.bold('+') + f.path.substr(unit.path.length+1)));
-							}
-							// }}}
-
-							// Deleted {{{
-							var items = _.filter(unit.files, f => f.doop && !f.project);
-							if (_.get(doop.settings, 'list.changes.maxDeleted') && items.length > doop.settings.list.changes.maxDeleted) {
-								changes.push(colors.red.bold('-' + items.length + ' items'));
-							} else {
-								items.forEach(f => changes.push(colors.red.bold('-') + f.path.substr(doop.settings.paths.doop.length+unit.path.length+2)));
-							}
-							// }}}
-
-							if (changes.length) {
-								console.log(' -', unit.id, colors.blue('('), changes.join(', '), colors.blue(')'));
-							} else {
-								console.log(' -', unit.id);
-							}
-						}
-					});
+					items.forEach(f => changes.push(colors.yellow.bold('~') + f.path.substr(unit.path.length+1)));
 				}
-			});
+				// }}}
+
+				// Created {{{
+				var items = _.filter(unit.files, f => f.project && !f.doop);
+				if (_.get(doop.settings, 'list.changes.maxCreated') && items.length > doop.settings.list.changes.maxCreated) {
+					changes.push(colors.green.bold('+' + items.length + ' items'));
+				} else {
+					items.forEach(f => changes.push(colors.green.bold('+') + f.path.substr(unit.path.length+1)));
+				}
+				// }}}
+
+				// Deleted {{{
+				var items = _.filter(unit.files, f => f.doop && !f.project);
+				if (_.get(doop.settings, 'list.changes.maxDeleted') && items.length > doop.settings.list.changes.maxDeleted) {
+					changes.push(colors.red.bold('-' + items.length + ' items'));
+				} else {
+					items.forEach(f => changes.push(colors.red.bold('-') + f.path.substr(doop.settings.paths.doop.length+unit.path.length+2)));
+				}
+				// }}}
+
+				if (changes.length) {
+					console.log(' -', unit.id, colors.blue('('), changes.join(', '), colors.blue(')'));
+				} else {
+					console.log(' -', unit.id);
+				}
+			}
+		});
 		next();
 	})
 	// }}}

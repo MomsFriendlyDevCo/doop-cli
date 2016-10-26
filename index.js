@@ -15,15 +15,11 @@ var iniPath = fspath.join(homedir(), '.dooprc');
 doop.settings = {
 	globs: {
 		projectRoot: './package.json',
-		units: {
-			client: './client/units/*/',
-			server: './server/units/*/',
-		},
+		units: './units/*/',
 	},
 	paths: {
 		doop: '',
-		client: './client/units',
-		server: './server/units',
+		units: './units',
 	},
 	aliases: {
 		default: 'list',
@@ -86,17 +82,12 @@ doop.chProjectRoot = function(finish, strict) {
 */
 doop.isDoopProject = function(finish, path) {
 	async()
-		.parallel({
-			client: function(next) {
-				glob(fspath.join(path, doop.settings.globs.units.client), next);
-			},
-			server: function(next) {
-				glob(fspath.join(path, doop.settings.globs.units.server), next);
-			},
+		.then('units', function(next) {
+			glob(fspath.join(path, doop.settings.globs.units), next);
 		})
 		.end(function(err) {
 			if (err) return finish(err);
-			if (this.client.length && this.server.length) return finish();
+			if (this.units.length) return finish();
 			finish('Not a valid Doop project: "' + path + '"');
 		});
 };
@@ -121,10 +112,9 @@ doop.getDoopPath = function(finish, altPath) {
 /**
 * Get all installed units as an array of strings
 * @param {function} finish Callback function
-* @param {string} type The type of unit to retrieve. Must correspond with a key in `doop.settings.globs.units`
 */
-doop.getUnits = function(finish, type) {
-	glob(doop.settings.globs.units[type], function(err, paths) {
+doop.getUnits = function(finish) {
+	glob(doop.settings.globs.units, function(err, paths) {
 		if (err) return finish(err);
 		finish(null, paths.map(path => fspath.basename(path)));
 	});
@@ -133,23 +123,17 @@ doop.getUnits = function(finish, type) {
 
 /**
 * Find the relative path for an installed unit
-* If multiple units are found (usually when type=null) an error is raised
 * If either NONE or ONE unit is found the callback is called
 * @param {function} finish Callback function
-* @param {string|null} type Optional type of unit to retrieve. If specified, must correspond with a key in `doop.settings.globs.units`, if unspecified all types will be searched
 * @param {string} name The name of the unit to find. Globs can be used
 */
-doop.getUnit = function(finish, type, name) {
-	if (type) {
-		glob(fspath.join(doop.settings.paths[type], name), function(err, path) {
-			if (err) return finish(err);
-			if (!path.length) return finish();
-			if (path.length > 1) return finish('Multiple units matching "' + path + '"');
-			finish(null, path);
-		});
-	} else {
-		finish('Auto unit finding is currently unsupported');
-	}
+doop.getUnit = function(finish, name) {
+	glob(fspath.join(doop.settings.paths.units, name), function(err, path) {
+		if (err) return finish(err);
+		if (!path.length) return finish();
+		if (path.length > 1) return finish('Multiple units matching "' + path + '"');
+		finish(null, path);
+	});
 };
 
 

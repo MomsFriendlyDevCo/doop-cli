@@ -15,8 +15,6 @@ program
 	.version(require('./package.json').version)
 	.usage('[unit]')
 	.description('Attempt to merge a unit with the upstream Doop repo')
-	.option('-s, --server', 'Specify explicitally that a unit refers to a server side unit (cannot be used with `--client`)')
-	.option('-c, --client', 'Limit list to only client units (Specify explicitally that a unit refers to a client side unit (cannot be used with `--server`))')
 	.option('-d, --dryrun', 'Dry run. Don\'t actually do anything')
 	.option('-v, --verbose', 'Be verbose. Specify multiple times for increasing verbosity', function(i, v) { return v + 1 }, 0)
 	.option('-r, --repo [repo]', 'Override the upstream Doop repo to use')

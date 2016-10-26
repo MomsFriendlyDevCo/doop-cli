@@ -14,8 +14,6 @@ program
 	.version(require('./package.json').version)
 	.usage('[unit...]')
 	.description('Install one or more units from the upstream Doop repo')
-	.option('-s, --server', 'Specify explicitally that a unit refers to a server side unit (cannot be used with `--client`)')
-	.option('-c, --client', 'Limit list to only client units (Specify explicitally that a unit refers to a client side unit (cannot be used with `--server`))')
 	.option('-d, --dryrun', 'Dry run. Don\'t actually do anything')
 	.option('-v, --verbose', 'Be verbose. Specify multiple times for increasing verbosity', function(i, v) { return v + 1 }, 0)
 	.option('-r, --repo [repo]', 'Override the upstream Doop repo to use')
@@ -25,8 +23,6 @@ async()
 	.use(asyncFlush)
 	// Sanity checks {{{
 	.then(function(next) {
-		if (!program.server && !program.client) return next('Must specifiy either --client or --server');
-		if (program.server && program.client) return next('Only --client OR --server can be specified. Not both');
 		if (!program.args.length) return next('At least one unit must be specified');
 		next();
 	})
@@ -44,7 +40,7 @@ async()
 			if (err) return next(err);
 			if (found) unit.existing = found;
 			next();
-		}, (program.server ? 'server' : program.client ? 'client' : null), program.args[0]);
+		}, program.args[0]);
 	})
 	// }}}
 	// Check the units don't already exist before we do anything {{{
@@ -64,8 +60,8 @@ async()
 	// }}}
 	// Install the units {{{
 	.forEach('units', function(next, unit) {
-		var source = fspath.join(this.repo, doop.settings.paths[program.client ? 'client' : 'server'], unit.id);
-		var dest = fspath.join(doop.settings.paths[program.client ? 'client' : 'server'], unit.id);
+		var source = fspath.join(this.repo, doop.settings.paths.units, unit.id);
+		var dest = fspath.join(doop.settings.paths.units, unit.id);
 		if (program.dryrun) {
 			console.log('Would install', colors.cyan(unit.id), 'From', colors.cyan(source), '=>', colors.cyan(dest));
 			return next();

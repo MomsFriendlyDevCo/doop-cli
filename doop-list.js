@@ -26,7 +26,11 @@ async()
 	.then('units', function(next) {
 		doop.getUnits(function(err, units) {
 			if (err) return next(err);
-			next(null, units.map(u => { return {id: u, path: fspath.join(doop.settings.paths.units, u), files:{}} }));
+			next(null, units.map(u => { return {
+				id: u,
+				path: fspath.join(doop.settings.paths.units, u),
+				files: {},
+			} }));
 		});
 	})
 	// }}}

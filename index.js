@@ -18,6 +18,7 @@ doop.settings = {
 		units: './units/*/',
 	},
 	paths: {
+		doopCli: fspath.resolve(fspath.dirname(process.argv[1])) + '/doop.js',
 		doop: '',
 		project: process.cwd(),
 		units: './units',

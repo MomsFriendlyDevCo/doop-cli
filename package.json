@@ -1,6 +1,6 @@
 {
   "name": "doop-cli",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Doop CLI helper to perform unit based operations on the current project",
   "main": "index.js",
   "bin": {

@@ -6,14 +6,14 @@ var asyncFlush = require('async-chainable-flush');
 var childProcess = require('child_process');
 var colors = require('chalk');
 var doop = require('.');
-var glob = require('glob');
+var glob = require('glob-all');
 var fs = require('fs');
 var fspath = require('path');
 var program = require('commander');
 
 program
 	.version(require('./package.json').version)
-	.usage('[glob]')
+	.usage('[globs...]')
 	.description('Glob for files within units and perform operations on them')
 	.option('-e, --edit', 'Open all found files in EDITOR')
 	.option('-p, --pretty', 'Pretty-print the found objects - showing which units each file belongs to')
@@ -45,7 +45,7 @@ async()
 	// }}}
 	// Find files matching the glob within units {{{
 	.forEach('units', function(next, unit) {
-		glob(program.args[0], {cwd: unit.path}, function(err, files) {
+		glob(program.args, {cwd: unit.path}, function(err, files) {
 			if (err) return next(err);
 			unit.schmFiles = files;
 			next();

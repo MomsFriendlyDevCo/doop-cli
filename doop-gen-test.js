@@ -12,18 +12,6 @@ var glob = require('glob');
 var program = require('commander');
 var temp = require('temp');
 
-// Utility functions {{{
-/**
-* Generate a Mocha + Chai test for a Mongoose schema
-* @param {Object} path The Schma path object (usually corresponds to `monoxide.models[MODEL].$mongooseModel.schema.paths`
-* @param {number} indent The current indent level
-* @return {array} An array of test items
-*/
-function pathToTest(path, indent) {
-	var prefix = "\t".repeat(indent)
-};
-// }}}
-
 program
 	.version(require('./package.json').version)
 	.usage('[schms...]')
@@ -115,7 +103,13 @@ async()
 						"\t\t\t\tres.body.forEach(function(i) {",
 					];
 
-					_.forEach(this.models[schm.id].$mongooseModel.schema.paths, function(attr, id) {
+					var sortedPaths = _(this.models[schm.id].$mongooseModel.schema.paths)
+						.map((v,k) => v)
+						.sortBy('path')
+						.value();
+
+					_.forEach(sortedPaths, function(path) {
+						var id = path.path;
 						if (id == '__v') return; // Weird item - ignore for now
 						var isDeep = /\./.test(id); // Is the path nested? (sub-docs, objects of objects)
 

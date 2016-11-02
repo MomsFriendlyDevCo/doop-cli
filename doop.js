@@ -7,7 +7,7 @@ program
 	.description('Perform a Doop operation on the currently active project')
 	.command('config', 'List Doop config')
 	.command('delete [unit]', 'Delete an exising unit from the project')
-	.command('gentest-schema [unit...]', 'Generate Mocha/Chai tests from unit schema files')
+	.command('gen-test [unit...]', 'Generate Mocha/Chai tests from unit schema files')
 	.command('glob [globs...]', 'Glob for files within units and perform operations on them')
 	.command('install [unit...]', 'Install one or more units from the upstream Doop repo')
 	.command('list', 'List units installed for the current project')

@@ -117,7 +117,7 @@ async()
 							test.push("\t\t\t\t\texpect(i).to.not.have." + (isDeep ? 'deep.' : '') + "property('" + id + "');");
 						} else {
 							test.push("\t\t\t\t\texpect(i).to.have." + (isDeep ? 'deep.' : '') + "property('" + id + "');");
-							switch (attr.instance.toLowerCase()) {
+							switch (path.instance.toLowerCase()) {
 								case 'string':
 									test.push("\t\t\t\t\texpect(i." + id + ").to.be.a.string;");
 									break;
@@ -127,9 +127,20 @@ async()
 								case 'date':
 									test.push("\t\t\t\t\texpect(i." + id + ").to.be.a.date;");
 									break;
+								case 'boolean':
+									test.push("\t\t\t\t\texpect(i." + id + ").to.be.a.boolean;");
+									break;
+								case 'array':
+									test.push("\t\t\t\t\texpect(i." + id + ").to.be.an.array;");
+									break;
 								case 'object':
 									test.push("\t\t\t\t\texpect(i." + id + ").to.be.an.object;");
 									break;
+								case 'objectid':
+									// Do nothing - also don't report an error
+									break;
+								default:
+									if (program.verbose) console.log('Unknown Mongo data type:', colors.cyan(path.instance.toLowerCase()));
 							}
 						}
 					});

@@ -120,6 +120,9 @@ async()
 							switch (path.instance.toLowerCase()) {
 								case 'string':
 									test.push("\t\t\t\t\texpect(i." + id + ").to.be.a.string;");
+									if (path.enumValues && path.enumValues.length) {
+										test.push("\t\t\t\t\texpect(i." + id + ").to.be.oneOf(" + path.enumValues.map(i => "'" + i + "'").join(', ') + ");");
+									}
 									break;
 								case 'number':
 									test.push("\t\t\t\t\texpect(i." + id + ").to.be.a.number;");

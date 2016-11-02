@@ -141,6 +141,23 @@ doop.getUnit = function(finish, name) {
 
 
 /**
+* Find a unit name via a file within its directory
+* @param {string} path The path of a resource within a unit
+* @return {string|boolean} Either the unit name the resource belongs to or boolean false
+*/
+doop.getUnitByResource = function(path) {
+	if (path.startsWith('/')) {
+		var fullPath = fspath.resolve(path);
+		var unitPath = fspath.join(doop.settings.paths.project, doop.settings.paths.units);
+		if (!fullPath.startsWith(unitPath)) return false;
+		return fullPath.substr(unitPath.length).split(fspath.sep)[0];
+	} else { // Already relative
+		return path.split(fspath.sep)[0];
+	}
+};
+
+
+/**
 * Load user settings from ~/.dooprc
 * @param {function} finish Callback function
 * @param {boolean} [mutate=true] Whether the doop.settings object should be mutated with the incomming settings. Set to false to just return the settings

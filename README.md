@@ -26,6 +26,25 @@ Command Line Interface for the [Doop Framework](https://github.com/MomsFriendlyD
     -V, --version  output the version number
 ```
 
+Getting Started
+---------------
+Install globally with NPM:
+
+```bash
+npm install -g doop-cli
+```
+
+Setup the Doop-Cli
+
+```bash
+doop setup
+```
+
+Navigate to your project root and, to list installed units in the project, run:
+
+```bash
+doop list
+```
 
 Configuration
 -------------

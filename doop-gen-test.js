@@ -96,7 +96,7 @@ async()
 					var test = schm.generated.get = [
 						"\tit('GET /api/" + schm.unit + "', function(done) {",
 						"\t\tapp.test.agent.get(app.config.url + '/api/" + schm.unit + "')",
-						"\t\t\t.end(function(err, rs) {",
+						"\t\t\t.end(function(err, res) {",
 						"\t\t\t\tif (res.body.error) return done(res.body.error);",
 						"\t\t\t\texpect(err).to.not.be.ok;",
 						"\t\t\t\texpect(res.body).to.be.an.array",
@@ -122,7 +122,7 @@ async()
 								case 'string':
 									test.push("\t\t\t\t\texpect(i." + id + ").to.be.a.string;");
 									if (path.enumValues && path.enumValues.length) {
-										test.push("\t\t\t\t\texpect(i." + id + ").to.be.oneOf(" + path.enumValues.map(i => "'" + i + "'").join(', ') + ");");
+										test.push("\t\t\t\t\texpect(i." + id + ").to.be.oneOf([" + path.enumValues.map(i => "'" + i + "'").join(', ') + "]);");
 									}
 									break;
 								case 'number':
@@ -150,10 +150,10 @@ async()
 					});
 
 					test.push('');
-					test.push('\t\t\t\t\tdone();');
 					test.push('\t\t\t\t});');
+					test.push('');
+					test.push('\t\t\t\tdone();');
 					test.push('\t\t\t});');
-					test.push('\t\t});');
 					test.push('\t});');
 					next();
 				},
@@ -174,7 +174,8 @@ async()
 
 		outStream.on('finish', next);
 
-		outStream.write("describe('ReST accessor /api/" + schm.id + "', function() {\n\n");
+		outStream.write("var expect = require('chai').expect;\n\n");
+		outStream.write("describe('ReST interface /api/" + schm.id + "', function() {\n\n");
 
 		_.forEach(schm.generated, function(text, method) {
 			outStream.write(text.join('\n'));

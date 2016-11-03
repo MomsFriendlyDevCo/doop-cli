@@ -16,6 +16,7 @@ program
 	.version(require('./package.json').version)
 	.usage('[schms...]')
 	.description('Generate Mocha/Chai tests from unit schema files')
+	.option('-f, --force', 'Force overwrite existing test files without merging')
 	.option('-v, --verbose', 'Be verbose. Specify multiple times for increasing verbosity', function(i, v) { return v + 1 }, 0)
 	.option('--no-clobber', 'Dont attempt to update existing files')
 	.parse(process.argv);
@@ -162,7 +163,7 @@ async()
 	// }}}
 	// Write main file / temporary file {{{
 	.forEach('schms', function(next, schm) {
-		if (schm.testPathExisting) { // Write to temporary file
+		if (!program.force && schm.testPathExisting) { // Write to temporary file
 			schm.testPathTemp = temp.path({suffix: '--' + schm.id + '.schm.js'});
 			if (program.verbose >= 2) console.log('Write', colors.cyan(schm.id), 'test to temporary file', colors.cyan(schm.testPathTemp));
 			var outStream = fs.createWriteStream(schm.testPathTemp);
@@ -186,7 +187,7 @@ async()
 	// Open merge session when needed {{{
 	.limit(1)
 	.forEach('schms', function(next, schm) {
-		if (!schm.testPathExisting) return next();
+		if (program.force || !schm.testPathExisting) return next();
 
 		if (program.verbose) console.log('Merge', colors.cyan(schm.testPath), colors.cyan(schm.testPathTemp));
 

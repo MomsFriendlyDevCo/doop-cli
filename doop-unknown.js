@@ -41,6 +41,8 @@ async()
 			cmd = _.trim(cmd);
 		} else if (_.includes(this.commands, cmd)) { // Existing command given - will be handled by commanders upstream require()
 			return next('STOP');
+		} else {
+			return next('Unknown Command: ' + cmd);
 		}
 
 		// If we got here cmd should be populated

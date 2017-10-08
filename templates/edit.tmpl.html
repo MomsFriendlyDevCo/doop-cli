@@ -1,0 +1,26 @@
+<div id="page-title">
+	<h1 class="page-header text-overflow">
+		Edit Widget - {{$ctrl.widget.title}}
+	</h1>
+</div>
+<div ng-if="!$ctrl.$loader.loading" class="btn-group-float">
+	<a href="#/widgets" class="btn btn-danger btn-sm btn-circle animated animation-delay-3 bounceInUp" tooltip="Discard all changes"><i class="fa fa-fw fa-times"></i></a>
+	<a ng-click="$ctrl.save()" class="btn btn-success btn-lg btn-circle animated bounceInUp" tooltip="Save changes"><i class="fa fa-check"></i></a>
+</div>
+<ol class="breadcrumb">
+	<li><a href="#/widgets">Widgets</a></li>
+	<li><a href="#/widgets/{{$ctrl.widget._id}}">{{$ctrl.widget.title}}</a></li>
+</ol>
+
+<form ng-submit="$ctrl.save()" class="container-fluid">
+	<div class="panel form-horizontal">
+		<div class="panel-body">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Title</label>
+				<div class="col-sm-9">
+					<input ng-model="$ctrl.widget.title" type="text" class="form-control"/>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>

@@ -11,6 +11,7 @@ program
 	.command('glob [globs...]', 'Glob for files within units and perform operations on them')
 	.command('install [unit...]', 'Install one or more units from the upstream Doop repo')
 	.command('list', 'List units installed for the current project')
+	.command('make [unit]', 'Create a unit skeleton from the given name (plurals for unit names are recommended)')
 	.command('merge [unit]', 'Attempt to merge a unit with the upstream Doop repo')
 	.command('setup', 'Configure Doop-Cli')
 	.command('unknown', 'Unknown command catcher', {isDefault: true, noHelp: true})

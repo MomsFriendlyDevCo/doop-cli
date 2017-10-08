@@ -14,6 +14,7 @@ Command Line Interface for the [Doop Framework](https://github.com/MomsFriendlyD
     glob [glob]               Glob for files within units and perform operations on them
     install [unit...]         Install one or more units from the upstream Doop repo
     list                      List units installed for the current project
+    make [unit]               Create a unit skeleton from the given name (plurals for unit names are recommended)
     merge [unit]              Attempt to merge a unit with the upstream Doop repo
     setup                     Configure Doop-Cli
     help [cmd]                display help for [cmd]
